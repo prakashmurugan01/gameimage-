@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess Tamil Song by Images</title>
+<link rel="stylesheet" href="s1.css">
+</head>
+<body>
+<div class="game-container">
+    <h1>🎵 Guess the Tamil Song by Images 🎵</h1>
+
+    <!-- Team Scores -->
+    <div class="team-score">
+        <div>
+            <span id="teamA-label" class="active-team">Team A</span> Score: 
+            <span id="teamA-score">0</span>
+            <button onclick="addPoint('A')">+1 Point</button>
+        </div>
+        <div>
+            <span id="teamB-label">Team B</span> Score: 
+            <span id="teamB-score">0</span>
+            <button onclick="addPoint('B')">+1 Point</button>
+        </div>
+    </div>
+
+    <!-- Image Hints -->
+    <div class="image-container" id="image-container">
+        <!-- Images will be inserted here -->
+    </div>
+
+    <!-- Audio -->
+    <audio id="song-audio" controls></audio>
+
+    <!-- Answer Input -->
+    <div class="answer-container">
+        <input type="text" id="answer-input" placeholder="Type your guess here">
+        <button onclick="checkAnswer()">Check</button>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button onclick="playAudio()">Play / Pause</button>
+        <button onclick="nextImage()">Next Image</button>
+        <button onclick="skipSong()">Skip</button>
+        <button onclick="revealAnswer()">Reveal</button>
+        <button onclick="nextRound()">Next Round</button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar">
+        <div id="progress"></div>
+    </div>
+</div>
+
+<script>
+let rounds = [
+    {
+        images: [
+            "https://images.filmibeat.com/img/popcorn/movie_posters/ko-20170208174841-7884.jpg",
+            "https://www.bing.com/th/id/OIP.iIxXBM1yiQs24Z2DNDAUWwHaE8?w=240&h=211&c=8&rs=1&qlt=90&o=6&dpr=1.4&pid=3.1&rm=2",
+            "https://th.bing.com/th/id/OIP.1p66tk1-lBxvAGHuLoxBggAAAA?w=136&h=204&c=7&r=0&o=7&dpr=1.4&pid=1.7&rm=3",
+            "https://ts4.mm.bing.net/th?id=OIP.LmLFf-wrpj2O3BHlqIdBagHaHa&pid=15.1",
+            "https://th.bing.com/th/id/OIP.7GrnoJSCFH1CPkM8FjKNSAHaKA?w=188&h=254&c=7&r=0&o=7&dpr=1.4&pid=1.7&rm=3"
+        ],
+        audio: "audio/song1.mp3",
+        answer: "Song 1"
+    },
+    {
+        images: ["img/6.jpg","img/7.jpg","img/8.jpg","img/9.jpg","img/10.jpg"],
+        audio: "audio/song2.mp3",
+        answer: "Song 2"
+    }
+];
+
+let currentRound = 0;
+let currentImageIndex = 0;
+let teamAScore = 0;
+let teamBScore = 0;
+let activeTeam = 'A';
+
+function loadRound() {
+    currentImageIndex = 0;
+    document.getElementById('image-container').innerHTML = "";
+    showImages();
+    document.getElementById('song-audio').src = rounds[currentRound].audio;
+    document.getElementById('answer-input').value = "";
+    updateProgress();
+}
+
+function showImages() {
+    let container = document.getElementById('image-container');
+    container.innerHTML = "";
+    for (let i = 0; i <= currentImageIndex; i++) {
+        let img = document.createElement('img');
+        img.src = rounds[currentRound].images[i];
+        img.alt = "Hint " + (i + 1);
+        img.style.width = "150px";
+        img.style.margin = "5px";
+        container.appendChild(img);
+    }
+}
+
+function playAudio() {
+    let audio = document.getElementById('song-audio');
+    if (audio.paused) {
+        audio.play();
+    } else {
+        audio.pause();
+    }
+}
+
+function nextImage() {
+    if (currentImageIndex < rounds[currentRound].images.length - 1) {
+        currentImageIndex++;
+        showImages();
+        updateProgress();
+    }
+}
+
+function skipSong() {
+    alert("Skipped! Correct answer was: " + rounds[currentRound].answer);
+    nextRound();
+}
+
+function revealAnswer() {
+    alert("Answer: " + rounds[currentRound].answer);
+}
+
+function checkAnswer() {
+    let guess = document.getElementById('answer-input').value.trim().toLowerCase();
+    let correct = rounds[currentRound].answer.toLowerCase();
+    if (guess === correct) {
+        alert("Correct! +1 point to Team " + activeTeam);
+        addPoint(activeTeam);
+        nextRound();
+    } else {
+        alert("Wrong! Try again or skip.");
+    }
+}
+
+function addPoint(team) {
+    if (team === 'A') {
+        teamAScore++;
+        document.getElementById('teamA-score').textContent = teamAScore;
+    } else {
+        teamBScore++;
+        document.getElementById('teamB-score').textContent = teamBScore;
+    }
+}
+
+function nextRound() {
+    currentRound++;
+    if (currentRound < rounds.length) {
+        activeTeam = (activeTeam === 'A') ? 'B' : 'A';
+        document.getElementById('teamA-label').classList.toggle('active-team', activeTeam === 'A');
+        document.getElementById('teamB-label').classList.toggle('active-team', activeTeam === 'B');
+        loadRound();
+    } else {
+        alert("Game Over! Final Scores:\nTeam A: " + teamAScore + "\nTeam B: " + teamBScore);
+    }
+}
+
+function updateProgress() {
+    let progress = ((currentImageIndex + 1) / rounds[currentRound].images.length) * 100;
+    document.getElementById('progress').style.width = progress + "%";
+}
+
+// Start first round
+loadRound();
+</script>
+</body>
+</html>
